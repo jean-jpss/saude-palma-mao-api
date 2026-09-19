@@ -1,0 +1,20 @@
+{
+  "name": "saude-palma-mao-api",
+  "version": "0.1.0",
+  "description": "API do Projeto Integrador Saude na Palma da Mao",
+  "type": "module",
+  "main": "src/servidor.js",
+  "scripts": {
+    "start": "node src/servidor.js",
+    "dev": "node --watch src/servidor.js"
+  },
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^17.0.0",
+    "express": "^5.1.0",
+    "pg": "^8.13.0"
+  }
+}
