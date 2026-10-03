@@ -3,18 +3,25 @@
   "version": "0.1.0",
   "description": "API do Projeto Integrador Saude na Palma da Mao",
   "type": "module",
-  "main": "src/servidor.js",
+  "main": "src/server.js",
   "scripts": {
-    "start": "node src/servidor.js",
-    "dev": "node --watch src/servidor.js"
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
   },
   "engines": {
     "node": ">=24.0.0"
   },
   "dependencies": {
+    "bcrypt": "^6.0.0",
+    "bcryptjs": "^3.0.3",
     "cors": "^2.8.5",
     "dotenv": "^17.0.0",
     "express": "^5.1.0",
+    "helmet": "^8.0.0",
+    "jsonwebtoken": "^9.0.3",
     "pg": "^8.13.0"
+  },
+  "allowScripts": {
+    "bcrypt@6.0.0": true
   }
 }
