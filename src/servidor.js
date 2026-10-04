@@ -9,6 +9,7 @@ import rotasProfissionaisClinicas from './rotas/profissionaisClinicas.js';
 import rotasDisponibilidades from './rotas/disponibilidades.js';
 import rotasAgendamentos from './rotas/agendamentos.js';
 import rotasAgenda from './rotas/agenda.js';
+import rotasClinicas from './rotas/clinicas.js';
 
 const app = express();
 const PORTA = process.env.PORT || process.env.PORTA || 3000;
@@ -65,6 +66,7 @@ app.use('/profissionais-clinicas', rotasProfissionaisClinicas);
 app.use('/disponibilidades', rotasDisponibilidades);
 app.use('/agendamentos', rotasAgendamentos);
 app.use('/agenda', rotasAgenda);
+app.use('/clinicas', rotasClinicas);
 
 // 404 padronizado. Precisa vir depois de todas as rotas.
 app.use((requisicao, resposta) => {
