@@ -1,7 +1,6 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
-
 import { consultar } from './banco.js';
 import rotasAutenticacao from './rotas/autenticacao.js';
 import rotasEspecialidades from './rotas/especialidades.js';
@@ -10,6 +9,8 @@ import rotasDisponibilidades from './rotas/disponibilidades.js';
 import rotasAgendamentos from './rotas/agendamentos.js';
 import rotasAgenda from './rotas/agenda.js';
 import rotasClinicas from './rotas/clinicas.js';
+import rotasProfissionais from './rotas/profissionais.js';
+
 
 const app = express();
 const PORTA = process.env.PORT || process.env.PORTA || 3000;
@@ -67,6 +68,7 @@ app.use('/disponibilidades', rotasDisponibilidades);
 app.use('/agendamentos', rotasAgendamentos);
 app.use('/agenda', rotasAgenda);
 app.use('/clinicas', rotasClinicas);
+app.use('/profissionais', rotasProfissionais);
 
 // 404 padronizado. Precisa vir depois de todas as rotas.
 app.use((requisicao, resposta) => {
