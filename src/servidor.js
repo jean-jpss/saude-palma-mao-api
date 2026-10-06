@@ -1,16 +1,33 @@
+// =====================================================================
+// SERVIDOR
+//
+// Ponto de entrada da aplicacao. Monta o Express, registra os
+// middlewares globais, liga cada prefixo de URL ao seu arquivo de
+// rotas e define o tratamento de erro.
+//
+// Arquitetura em camadas:
+//
+//   routes       caminho HTTP e middlewares de acesso
+//   controllers  leitura da requisicao, validacao e resposta
+//   models       acesso ao banco, o unico lugar com SQL
+//
+// A regra que mantem a separacao: um controller nunca escreve SQL, e
+// um model nunca conhece requisicao ou resposta HTTP.
+// =====================================================================
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
-import { consultar } from './banco.js';
-import rotasAutenticacao from './rotas/autenticacao.js';
-import rotasEspecialidades from './rotas/especialidades.js';
-import rotasProfissionaisClinicas from './rotas/profissionaisClinicas.js';
-import rotasDisponibilidades from './rotas/disponibilidades.js';
-import rotasAgendamentos from './rotas/agendamentos.js';
-import rotasAgenda from './rotas/agenda.js';
-import rotasClinicas from './rotas/clinicas.js';
-import rotasProfissionais from './rotas/profissionais.js';
 
+import { consultar } from './banco.js';
+
+import rotasAutenticacao from './routes/autenticacaoRoutes.js';
+import rotasEspecialidades from './routes/especialidadeRoutes.js';
+import rotasClinicas from './routes/clinicaRoutes.js';
+import rotasProfissionais from './routes/profissionalRoutes.js';
+import rotasProfissionaisClinicas from './routes/profissionalClinicaRoutes.js';
+import rotasDisponibilidades from './routes/disponibilidadeRoutes.js';
+import rotasAgendamentos from './routes/agendamentoRoutes.js';
+import rotasAgenda from './routes/agendaRoutes.js';
 
 const app = express();
 const PORTA = process.env.PORT || process.env.PORTA || 3000;
@@ -63,12 +80,12 @@ app.get('/saude', async (_requisicao, resposta) => {
 // ---------------------------------------------------------------
 app.use('/autenticacao', rotasAutenticacao);
 app.use('/especialidades', rotasEspecialidades);
+app.use('/clinicas', rotasClinicas);
 app.use('/profissionais-clinicas', rotasProfissionaisClinicas);
+app.use('/profissionais', rotasProfissionais);
 app.use('/disponibilidades', rotasDisponibilidades);
 app.use('/agendamentos', rotasAgendamentos);
 app.use('/agenda', rotasAgenda);
-app.use('/clinicas', rotasClinicas);
-app.use('/profissionais', rotasProfissionais);
 
 // 404 padronizado. Precisa vir depois de todas as rotas.
 app.use((requisicao, resposta) => {
@@ -81,8 +98,8 @@ app.use((requisicao, resposta) => {
 app.use((erro, _requisicao, resposta, _proximo) => {
     const status = erro.status || 500;
 
-    // Erro previsto (ErroApi) nao polui o log: ja foi tratado de proposito.
-    // Erro inesperado vai inteiro para o log, para permitir diagnostico.
+    // Erro previsto (ErroApi) nao polui o log: ja foi tratado de
+    // proposito. Erro inesperado vai inteiro para o log.
     if (status >= 500) {
         console.error(erro);
     }
