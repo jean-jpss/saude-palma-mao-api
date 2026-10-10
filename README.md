@@ -158,3 +158,8 @@ O `02-seed.sql` cria contas fictícias apenas para testes e demonstração: um a
 ## Equipe
 
 Arthur Andrey, Ibson Gomes, Gabriel Roberto, Jean Phillip, João Santino e Layza Maria.
+
+## Testes
+
+Roteiro de testes manuais em PowerShell: [TESTES.md](TESTES.md). Cobre hoje a autentica��o. Os demais fluxos podem ser exercitados pelo Swagger em `/docs`.
+
