@@ -17,6 +17,8 @@
     "dotenv": "^17.0.0",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.3",
-    "pg": "^8.13.0"
+    "pg": "^8.13.0",
+    "swagger-jsdoc": "^6.3.0",
+    "swagger-ui-express": "^5.0.1"
   }
 }

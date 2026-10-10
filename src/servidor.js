@@ -17,8 +17,10 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
+import swaggerUi from 'swagger-ui-express';
 
 import { consultar } from './banco.js';
+import { especificacaoSwagger } from './swagger.js';
 
 import rotasAutenticacao from './routes/autenticacaoRoutes.js';
 import rotasEspecialidades from './routes/especialidadeRoutes.js';
@@ -56,6 +58,30 @@ app.use(cors({
 app.use(express.json());
 
 // ---------------------------------------------------------------
+// Documentacao interativa da API
+//
+// A especificacao e montada a partir das anotacoes JSDoc nos arquivos
+// de src/routes, somadas aos schemas definidos em swagger.js.
+//
+// /docs        interface navegavel
+// /openapi.json  especificacao bruta, para gerar cliente ou importar
+//                no Postman e no Insomnia
+// ---------------------------------------------------------------
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(especificacaoSwagger, {
+    customSiteTitle: 'API Saude na Palma da Mao',
+    swaggerOptions: {
+        // Mantem o token preenchido ao recarregar a pagina.
+        persistAuthorization: true,
+        docExpansion: 'none',
+        filter: true
+    }
+}));
+
+app.get('/openapi.json', (_requisicao, resposta) => {
+    resposta.json(especificacaoSwagger);
+});
+
+// ---------------------------------------------------------------
 // Health check. E o endpoint que prova que API e banco estao no ar.
 // ---------------------------------------------------------------
 app.get('/saude', async (_requisicao, resposta) => {
@@ -65,7 +91,8 @@ app.get('/saude', async (_requisicao, resposta) => {
             status: 'ok',
             ambiente: process.env.AMBIENTE || 'desconhecido',
             banco: 'conectado',
-            horaServidor: rows[0].agora
+            horaServidor: rows[0].agora,
+            documentacao: '/docs'
         });
     } catch (erro) {
         console.error('Falha no health check:', erro);
@@ -73,6 +100,17 @@ app.get('/saude', async (_requisicao, resposta) => {
             erro: { codigo: 'BANCO_INDISPONIVEL', mensagem: 'Nao foi possivel conectar ao banco de dados.' }
         });
     }
+});
+
+// Rota raiz: evita a impressao de erro quando alguem abre a URL base.
+app.get('/', (_requisicao, resposta) => {
+    resposta.json({
+        api: 'Saude na Palma da Mao',
+        versao: '1.0.0',
+        documentacao: '/docs',
+        especificacao: '/openapi.json',
+        saude: '/saude'
+    });
 });
 
 // ---------------------------------------------------------------
@@ -114,4 +152,5 @@ app.use((erro, _requisicao, resposta, _proximo) => {
 
 app.listen(PORTA, () => {
     console.log(`API ouvindo na porta ${PORTA}`);
+    console.log(`Documentacao em http://localhost:${PORTA}/docs`);
 });
