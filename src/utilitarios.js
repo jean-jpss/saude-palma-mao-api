@@ -50,3 +50,15 @@ export function frasePlural(quantidade) {
         ? 'Existe 1 consulta marcada'
         : `Existem ${quantidade} consultas marcadas`;
 }
+
+// Prepara um texto para busca por trecho de nome: minusculas, sem
+// acento, e com os curingas do LIKE (% _ \) neutralizados, para que o
+// usuario digitando "%" nao case com tudo.
+export function normalizarParaBusca(texto) {
+    return String(texto)
+        .trim()
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[̀-ͯ]/g, '')
+        .replace(/[\\%_]/g, (c) => `\\${c}`);
+}

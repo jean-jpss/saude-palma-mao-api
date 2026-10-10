@@ -36,6 +36,11 @@ const rotas = Router();
  *       - in: query
  *         name: idClinica
  *         schema: { type: integer }
+ *       - in: query
+ *         name: nome
+ *         description: Trecho do nome do profissional. Ignora maiusculas e acentos.
+ *         schema: { type: string }
+ *         example: ana
  *     responses:
  *       200:
  *         description: Lista de vinculos
@@ -44,6 +49,8 @@ const rotas = Router();
  *             schema:
  *               type: array
  *               items: { $ref: '#/components/schemas/VinculoProfissionalClinica' }
+ *       400:
+ *         $ref: '#/components/responses/DadosInvalidos'
  *       401:
  *         $ref: '#/components/responses/NaoAutenticado'
  */

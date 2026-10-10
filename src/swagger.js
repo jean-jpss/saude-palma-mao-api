@@ -80,6 +80,7 @@ mensagem ja vem em portugues.
     ],
     tags: [
         { name: 'Autenticacao', description: 'Cadastro de paciente, login e perfil do usuario logado' },
+        { name: 'Pacientes', description: 'Dados do paciente logado e consulta administrativa de pacientes' },
         { name: 'Especialidades', description: 'Consulta publica e manutencao administrativa' },
         { name: 'Clinicas', description: 'Consulta publica e manutencao administrativa' },
         { name: 'Profissionais', description: 'Busca pelo paciente e manutencao administrativa' },
@@ -129,6 +130,21 @@ mensagem ja vem em portugues.
                 properties: {
                     usuario: { $ref: '#/components/schemas/UsuarioLogado' },
                     token: { type: 'string', example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...' }
+                }
+            },
+            Paciente: {
+                type: 'object',
+                properties: {
+                    idPaciente: { type: 'integer', example: 1 },
+                    idUsuario: { type: 'integer', example: 2 },
+                    nome: { type: 'string', example: 'Maria da Silva' },
+                    email: { type: 'string', example: 'maria.silva@exemplo.com' },
+                    telefone: { type: 'string', nullable: true, example: '81999998888' },
+                    cpf: { type: 'string', example: '52998224725' },
+                    dataNascimento: { type: 'string', format: 'date', example: '1955-03-14' },
+                    sexo: { type: 'string', nullable: true, example: 'Feminino' },
+                    observacoes: { type: 'string', nullable: true, example: null },
+                    ativo: { type: 'boolean', example: true }
                 }
             },
             Especialidade: {

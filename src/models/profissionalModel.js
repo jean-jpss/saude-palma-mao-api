@@ -203,7 +203,7 @@ export async function desativarComUsuario(id, idUsuario) {
 }
 
 // Busca do paciente: o recorte aqui e o VINCULO, nao a pessoa.
-export async function listarVinculosParaBusca(idEspecialidade, idClinica) {
+export async function listarVinculosParaBusca(idEspecialidade, idClinica, nomeNormalizado = null) {
     const { rows } = await consultar(
         `SELECT pc.id_profissional_clinica,
                 pr.id_profissional,
@@ -221,11 +221,14 @@ export async function listarVinculosParaBusca(idEspecialidade, idClinica) {
           WHERE pc.ativo = TRUE AND pr.ativo = TRUE AND c.ativo = TRUE AND u.ativo = TRUE
             AND ($1::bigint IS NULL OR pe.id_especialidade = $1)
             AND ($2::bigint IS NULL OR c.id_clinica = $2)
+            AND ($3::text IS NULL OR TRANSLATE(LOWER(u.nome),
+                    'áàâãäéèêëíìîïóòôõöúùûüç', 'aaaaaeeeeiiiiooooouuuuc')
+                 LIKE '%' || $3 || '%' ESCAPE '\\')
           GROUP BY pc.id_profissional_clinica, pr.id_profissional, u.nome,
                    pr.conselho, pr.registro_profissional, pr.uf_registro,
                    c.id_clinica, c.nome, c.logradouro, c.numero, c.bairro, c.cidade, c.uf
           ORDER BY u.nome, c.nome`,
-        [idEspecialidade, idClinica]
+        [idEspecialidade, idClinica, nomeNormalizado]
     );
     return rows;
 }

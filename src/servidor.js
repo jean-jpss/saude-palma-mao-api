@@ -30,6 +30,7 @@ import rotasProfissionaisClinicas from './routes/profissionalClinicaRoutes.js';
 import rotasDisponibilidades from './routes/disponibilidadeRoutes.js';
 import rotasAgendamentos from './routes/agendamentoRoutes.js';
 import rotasAgenda from './routes/agendaRoutes.js';
+import rotasPacientes from './routes/pacienteRoutes.js';
 
 const app = express();
 const PORTA = process.env.PORT || process.env.PORTA || 3000;
@@ -117,6 +118,7 @@ app.get('/', (_requisicao, resposta) => {
 // Rotas do dominio
 // ---------------------------------------------------------------
 app.use('/autenticacao', rotasAutenticacao);
+app.use('/pacientes', rotasPacientes);
 app.use('/especialidades', rotasEspecialidades);
 app.use('/clinicas', rotasClinicas);
 app.use('/profissionais-clinicas', rotasProfissionaisClinicas);
