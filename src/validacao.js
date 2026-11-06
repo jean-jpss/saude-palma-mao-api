@@ -33,7 +33,6 @@ export function cpfValido(valor) {
 
     // Sequencias repetidas (00000000000, 11111111111, ...) passam no
     // calculo matematico, mas nao sao CPFs validos.
-    if (/^(\d)\1{10}$/.test(cpf)) return false;
 
     const calcularDigito = (quantidade) => {
         let soma = 0;
