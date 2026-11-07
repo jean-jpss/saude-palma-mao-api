@@ -1,0 +1,121 @@
+# Pipeline de CI da API "Saude na Palma da Mao".
+#
+# Quando roda:
+#   - em todo pull request aberto ou atualizado contra a main;
+#   - em todo push na main (inclusive o merge de um PR), para que o
+#     Render so publique o commit depois que estes checks passarem
+#     (opcao "After CI Checks Pass" no painel do Render);
+#   - manualmente, pelo botao "Run workflow" (workflow_dispatch).
+#
+# Etapas:
+#   1. qualidade      lint (ESLint) + testes unitarios com cobertura
+#   2. build-fumaca   instala so as dependencias de producao, sobe a API
+#                     contra um PostgreSQL efemero e chama o /saude
+name: CI da API
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  # Botao "Run workflow" na aba Actions e na extensao do VS Code.
+  # So aparece depois que este arquivo estiver na main.
+  workflow_dispatch:
+
+# O token do GitHub so precisa ler o codigo. Menor permissao possivel.
+permissions:
+  contents: read
+
+# Um push novo no mesmo PR cancela a execucao anterior, que ficou velha.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  qualidade:
+    name: Lint e testes unitarios
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Baixar o codigo
+        uses: actions/checkout@v7
+
+      - name: Configurar Node.js 24 (o mesmo do package.json e do Render)
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Instalar dependencias exatamente como no lockfile
+        run: npm ci
+
+      - name: Lint (analise estatica)
+        run: npm run lint
+
+      - name: Testes unitarios com cobertura minima de 80% das linhas
+        run: npm run test:cobertura
+
+  build-fumaca:
+    name: Build e teste de fumaca
+    needs: qualidade
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    # Banco descartavel, criado so para esta execucao e apagado no fim.
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: ci
+          POSTGRES_PASSWORD: ci
+          POSTGRES_DB: saude_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    # Valores falsos, validos apenas dentro do runner. Nenhum segredo real
+    # de producao entra no pipeline de pull request.
+    env:
+      DATABASE_URL: postgresql://ci:ci@localhost:5432/saude_ci
+      JWT_SEGREDO: segredo-de-teste-apenas-para-ci
+      AMBIENTE: ci
+      PORTA: 3000
+
+    steps:
+      - name: Baixar o codigo
+        uses: actions/checkout@v7
+
+      - name: Configurar Node.js 24
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Instalar so as dependencias de producao (igual ao deploy)
+        run: npm ci --omit=dev
+
+      - name: Subir a API em segundo plano
+        run: |
+          npm start > api.log 2>&1 &
+          echo "API iniciada"
+
+      - name: Teste de fumaca no /saude (API e banco respondendo)
+        run: |
+          for tentativa in $(seq 1 20); do
+            if curl --silent --fail http://localhost:3000/saude > saude.json; then
+              cat saude.json
+              grep -q '"status":"ok"' saude.json
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "A API nao respondeu no /saude. Log do servidor:"
+          cat api.log
+          exit 1
+
+      - name: Conferir que a documentacao OpenAPI e gerada
+        run: curl --silent --fail http://localhost:3000/openapi.json | grep -q '"openapi"'
